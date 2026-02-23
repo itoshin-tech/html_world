@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Visual Canvas Exploration | 2D & 3D Graphics Lab</title>
+    <meta name="description" content="Exploring the possibilities of 2D and 3D graphics on the web using WebGL, Three.js, and Canvas API." />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+  </head>
+  <body>
+    <div id="app">
+      <header class="header">
+        <h1 class="logo">Visual Canvas Exploration</h1>
+        <nav class="nav">
+          <ul class="nav-list">
+            <li><a href="#labs" class="nav-link">Labs</a></li>
+            <li><a href="#about" class="nav-link">About</a></li>
+          </ul>
+        </nav>
+      </header>
+
+      <main>
+        <section id="hero" class="hero">
+          <canvas id="hero-canvas"></canvas>
+          <div class="hero-content">
+            <h2 class="hero-title">Beyond the Canvas</h2>
+            <p class="hero-subtitle">ウェブにおける視覚表現の次なる可能性を追求する</p>
+            <div class="hero-actions">
+              <a href="#labs" class="btn btn-primary">実験を見る</a>
+            </div>
+          </div>
+        </section>
+
+        <section id="labs" class="labs-section">
+          <div class="container">
+            <h2 class="section-title">Laboratory</h2>
+            <div class="labs-grid" id="labs-grid">
+              <!-- Labs items will be injected by JavaScript -->
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer class="footer">
+        <p>&copy; 2026 Visual Canvas Exploration. Built with Three.js & Vite.</p>
+      </footer>
+    </div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
