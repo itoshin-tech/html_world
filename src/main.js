@@ -229,16 +229,23 @@ style.textContent = `
     background: var(--secondary-color);
     border: 1px solid var(--glass-border);
     border-radius: 20px;
-    padding: 2rem;
+    padding: 1.5rem;
     transition: all 0.4s cubic-bezier(0.2, 0, 0.2, 1);
     cursor: pointer;
     position: relative;
     overflow: hidden;
+    /* タップ操作で見た目がフィードバックするように */
+    -webkit-tap-highlight-color: transparent;
   }
   .lab-card:hover {
-    transform: translateY(-10px);
+    transform: translateY(-8px);
     border-color: var(--accent-color);
     box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
+  }
+  /* タッチデバイスでのフィードバック */
+  .lab-card:active {
+    transform: scale(0.97);
+    border-color: var(--accent-color);
   }
   .lab-category {
     font-size: 0.7rem;
@@ -250,13 +257,13 @@ style.textContent = `
     display: block;
   }
   .lab-title {
-    font-size: 1.5rem;
-    margin-bottom: 1rem;
+    font-size: 1.4rem;
+    margin-bottom: 0.8rem;
   }
   .lab-desc {
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     opacity: 0.6;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1.2rem;
     line-height: 1.6;
   }
   .lab-tech {
@@ -290,54 +297,119 @@ style.textContent = `
     height: 100%;
     background: rgba(0,0,0,0.9);
     backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
   }
   .modal-container {
     position: relative;
-    width: 90%;
+    width: 92%;
     max-width: 1000px;
-    height: 80vh;
+    height: 85vh;
+    /* モバイルブラウザのアドレスバー考慮 */
+    max-height: 85svh;
     background: var(--bg-color);
     border: 1px solid var(--glass-border);
-    border-radius: 30px;
+    border-radius: 24px;
     overflow: hidden;
     display: flex;
     flex-direction: column;
   }
   .modal-close {
     position: absolute;
-    top: 20px;
-    right: 20px;
-    background: none;
+    top: 16px;
+    right: 16px;
+    background: rgba(255,255,255,0.1);
     border: none;
     color: white;
-    font-size: 2rem;
+    font-size: 1.5rem;
     cursor: pointer;
     z-index: 10;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+    line-height: 1;
+  }
+  .modal-close:hover, .modal-close:active {
+    background: rgba(255,255,255,0.2);
   }
   .modal-content {
     display: grid;
-    grid-template-columns: 1fr 300px;
+    grid-template-columns: 1fr 280px;
     height: 100%;
+    overflow: hidden;
   }
   #canvas-container {
     background: #000;
     position: relative;
+    overflow: hidden;
+    /* OSレベルのピンチズームを無効化: これがないとブラウザがピンチを横取りする */
+    touch-action: none;
   }
   .modal-info {
-    padding: 3rem;
+    padding: 2rem;
     border-left: 1px solid var(--glass-border);
     display: flex;
     flex-direction: column;
     justify-content: center;
+    overflow-y: auto;
   }
-  #modal-title { margin-bottom: 1rem; font-size: 2rem; }
-  #modal-desc { opacity: 0.7; line-height: 1.6; margin-bottom: 2rem; }
-  #modal-tech { font-size: 0.8rem; font-weight: 600; color: var(--accent-color); text-transform: uppercase; }
+  #modal-title { margin-bottom: 0.8rem; font-size: 1.6rem; line-height: 1.2; }
+  #modal-desc { opacity: 0.7; line-height: 1.7; margin-bottom: 1.5rem; font-size: 0.9rem; }
+  #modal-tech { font-size: 0.75rem; font-weight: 600; color: var(--accent-color); text-transform: uppercase; letter-spacing: 0.08em; }
 
+  /* タブレット以下 (768px): 縦並びレイアウト */
   @media (max-width: 768px) {
-    .modal-content { grid-template-columns: 1fr; }
-    .modal-info { border-left: none; border-top: 1px solid var(--glass-border); padding: 1.5rem; }
+    .modal-container {
+      width: 96%;
+      height: 90vh;
+      max-height: 90svh;
+      border-radius: 20px;
+    }
+    .modal-content {
+      grid-template-columns: 1fr;
+      /* キャンバス60% + 情報40% の縦割り */
+      grid-template-rows: 60% 40%;
+    }
+    #canvas-container {
+      height: 100%;
+    }
+    .modal-info {
+      border-left: none;
+      border-top: 1px solid var(--glass-border);
+      padding: 1rem 1.2rem;
+      flex-direction: row;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    #modal-title { font-size: 1.2rem; margin-bottom: 0.3rem; width: 100%; }
+    #modal-desc  { font-size: 0.82rem; margin-bottom: 0.5rem; width: 100%; }
+  }
+
+  /* スマホ (480px以下) */
+  @media (max-width: 480px) {
+    .modal-container {
+      width: 100%;
+      height: 100%;
+      max-height: 100%;
+      border-radius: 0;
+    }
+    .modal-content {
+      grid-template-rows: 55% 45%;
+    }
+    .modal-close {
+      top: 12px;
+      right: 12px;
+    }
+    .modal-info {
+      padding: 0.8rem 1rem;
+    }
+    #modal-title { font-size: 1.1rem; }
+    #modal-desc  { font-size: 0.8rem; line-height: 1.5; }
   }
 `;
-document.head.appendChild(style);
+// styleを一度だけ追加（バグ修正: 以前は2回appendされていた）
 document.head.appendChild(style);

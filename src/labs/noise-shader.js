@@ -27,6 +27,7 @@ export class NoiseShader {
     this.resize();
     window.addEventListener('resize', () => this.resize());
 
+    // マウス操作
     this.canvas.addEventListener('mousemove', (e) => {
       const rect = this.canvas.getBoundingClientRect();
       const nx = (e.clientX - rect.left) / this.canvas.width;
@@ -51,6 +52,44 @@ export class NoiseShader {
 
     this.canvas.addEventListener('mouseenter', () => { this.mouseActive = 1.0; });
     this.canvas.addEventListener('mouseleave', () => { this.mouseActive = 0.0; });
+
+    // タッチ操作（スマホ対応）
+    this.canvas.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      this.mouseActive = 1.0;
+      const rect = this.canvas.getBoundingClientRect();
+      const t = e.touches[0];
+      this.mouse = [
+        (t.clientX - rect.left) / this.canvas.width,
+        1.0 - (t.clientY - rect.top) / this.canvas.height,
+      ];
+    }, { passive: false });
+
+    this.canvas.addEventListener('touchmove', (e) => {
+      e.preventDefault();
+      const rect = this.canvas.getBoundingClientRect();
+      const t = e.touches[0];
+      const nx = (t.clientX - rect.left) / this.canvas.width;
+      const ny = 1.0 - (t.clientY - rect.top) / this.canvas.height;
+
+      const dx = nx - this.mouse[0];
+      const dy = ny - this.mouse[1];
+      const speed = Math.sqrt(dx * dx + dy * dy);
+
+      const now = Date.now();
+      if (speed > 0.008 && now - this.lastSpawnTime > 120) {
+        const sign = (dx - dy) > 0 ? 1 : -1;
+        this.spawnVortex(nx, ny, speed, sign);
+        this.lastSpawnTime = now;
+      }
+
+      this.prevMouse = [...this.mouse];
+      this.mouse = [nx, ny];
+    }, { passive: false });
+
+    this.canvas.addEventListener('touchend', () => {
+      this.mouseActive = 0.0;
+    });
 
     // ----- Vertex Shader -----
     const vs = `

@@ -20,12 +20,27 @@ export class MagneticField {
         this.animate();
 
         window.addEventListener('resize', () => this.resize());
+
+        // マウス操作
         this.container.addEventListener('mousemove', (e) => {
             const rect = this.canvas.getBoundingClientRect();
             this.mouse.x = e.clientX - rect.left;
             this.mouse.y = e.clientY - rect.top;
         });
         this.container.addEventListener('mouseleave', () => {
+            this.mouse.x = null;
+            this.mouse.y = null;
+        });
+
+        // タッチ操作（スマホ対応）
+        this.container.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            const rect = this.canvas.getBoundingClientRect();
+            const t = e.touches[0];
+            this.mouse.x = t.clientX - rect.left;
+            this.mouse.y = t.clientY - rect.top;
+        }, { passive: false });
+        this.container.addEventListener('touchend', () => {
             this.mouse.x = null;
             this.mouse.y = null;
         });

@@ -65,6 +65,12 @@ export class DoublePendulum {
         this.canvas.height = this.container.clientHeight;
         this.cx = this.canvas.width / 2;
         this.cy = this.canvas.height * 0.35; // 支点は上寄り
+
+        // アームの長さをキャンバスサイズに合わせてスケール
+        // 小さい辺の 28% / 22% を基準にすることで画面からはみ出さない
+        const baseSize = Math.min(this.canvas.width, this.canvas.height);
+        this.L1 = baseSize * 0.28; // デスクトップ500px → 140px相当
+        this.L2 = baseSize * 0.22; // デスクトップ500px → 110px相当
     }
 
     /** 振子群をリセット（初期角度 θ1 を基準に微小オフセット） */
@@ -280,7 +286,12 @@ export class DoublePendulum {
         ctx.fillStyle = 'rgba(255,255,255,0.25)';
         ctx.font = '13px Outfit, sans-serif';
         ctx.textAlign = 'center';
-        ctx.fillText('ドラッグして初期角度を設定 → 離すと開始', this.canvas.width / 2, this.canvas.height - 20);
+        // タッチとマウス両方に対応したヒント
+        const isTouchDevice = ('ontouchstart' in window);
+        const hint = isTouchDevice
+            ? 'タップ＆スワイプで初期角度を設定 → 離すと開始'
+            : 'ドラッグして初期角度を設定 → 離すと開始';
+        ctx.fillText(hint, this.canvas.width / 2, this.canvas.height - 20);
         ctx.restore();
     }
 

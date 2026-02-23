@@ -24,6 +24,8 @@ body {
   font-family: var(--font-main);
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
+  /* モバイルでのタップ時の遅延をなくす */
+  touch-action: manipulation;
 }
 
 #app {
@@ -35,7 +37,7 @@ body {
 .container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 2rem;
+  padding: 0 1.5rem;
 }
 
 /* Header */
@@ -47,24 +49,31 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1.5rem 2rem;
+  padding: 1.2rem 1.5rem;
   z-index: 100;
-  background: rgba(5, 5, 5, 0.8);
+  background: rgba(5, 5, 5, 0.85);
   backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--glass-border);
 }
 
 .logo {
-  font-size: 1.25rem;
+  font-size: 1rem;
   font-weight: 600;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
+  /* 長くなっても折り返さないようにする */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 55vw;
 }
 
 .nav-list {
   display: flex;
   list-style: none;
-  gap: 2rem;
+  gap: 1.5rem;
+  flex-shrink: 0;
 }
 
 .nav-link {
@@ -74,6 +83,9 @@ body {
   font-size: 0.9rem;
   transition: color 0.3s ease;
   opacity: 0.7;
+  /* タップ領域を確保 */
+  padding: 0.5rem 0;
+  display: inline-block;
 }
 
 .nav-link:hover {
@@ -85,6 +97,8 @@ body {
 .hero {
   position: relative;
   height: 100vh;
+  /* モバイルブラウザのアドレスバー対応 */
+  height: 100svh;
   width: 100%;
   display: flex;
   align-items: center;
@@ -106,34 +120,38 @@ body {
   z-index: 10;
   text-align: center;
   max-width: 800px;
-  padding: 0 1rem;
+  padding: 0 1.5rem;
 }
 
 .hero-title {
-  font-size: clamp(3rem, 10vw, 6rem);
+  font-size: clamp(2.5rem, 10vw, 6rem);
   font-weight: 600;
   margin-bottom: 1rem;
   background: linear-gradient(135deg, #fff 0%, #888 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+  background-clip: text;
   line-height: 1.1;
 }
 
 .hero-subtitle {
-  font-size: 1.25rem;
+  font-size: clamp(0.9rem, 3vw, 1.25rem);
   opacity: 0.8;
   margin-bottom: 2.5rem;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.08em;
 }
 
 .btn {
   display: inline-block;
-  padding: 1rem 2.5rem;
+  padding: 0.9rem 2.2rem;
   border-radius: 50px;
   text-decoration: none;
   font-weight: 600;
   transition: all 0.3s cubic-bezier(0.2, 0, 0.2, 1);
   font-size: 1rem;
+  /* タップ可能な最低サイズ確保 */
+  min-height: 44px;
+  min-width: 44px;
 }
 
 .btn-primary {
@@ -148,36 +166,117 @@ body {
 
 /* Labs Section */
 .labs-section {
-  padding: 8rem 0;
+  padding: 6rem 0;
   background: var(--bg-color);
 }
 
 .section-title {
-  font-size: 2.5rem;
-  margin-bottom: 4rem;
+  font-size: clamp(1.8rem, 5vw, 2.5rem);
+  margin-bottom: 3rem;
   text-align: center;
 }
 
 .labs-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-  gap: 2rem;
+  /* 300pxを最小幅にして小さいスマホでも1列が確実に出る */
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
 }
 
 /* Footer */
 .footer {
-  padding: 4rem 2rem;
+  padding: 3rem 1.5rem;
   text-align: center;
   border-top: 1px solid var(--glass-border);
   opacity: 0.5;
   font-size: 0.8rem;
 }
 
+/* ========================================
+   レスポンシブ: タブレット (768px以下)
+   ======================================== */
 @media (max-width: 768px) {
-  .hero-title {
-    font-size: 3rem;
+  .header {
+    padding: 1rem 1.2rem;
   }
+
+  .logo {
+    font-size: 0.85rem;
+    max-width: 50vw;
+  }
+
+  .nav-list {
+    gap: 1rem;
+  }
+
+  .nav-link {
+    font-size: 0.85rem;
+  }
+
+  .hero-content {
+    padding: 0 1.2rem;
+  }
+
+  .labs-section {
+    padding: 5rem 0 4rem;
+  }
+
+  .section-title {
+    margin-bottom: 2rem;
+  }
+
   .labs-grid {
+    gap: 1rem;
+  }
+}
+
+/* ========================================
+   レスポンシブ: スマホ (480px以下)
+   ======================================== */
+@media (max-width: 480px) {
+  .header {
+    padding: 0.9rem 1rem;
+  }
+
+  /* 小さい画面では "Visual Canvas" など短縮表示 */
+  .logo {
+    font-size: 0.8rem;
+    max-width: 48vw;
+  }
+
+  .nav-list {
+    gap: 0.8rem;
+  }
+
+  .container {
+    padding: 0 1rem;
+  }
+
+  .hero-content {
+    padding: 0 1rem;
+  }
+
+  .hero-subtitle {
+    margin-bottom: 2rem;
+    letter-spacing: 0.04em;
+  }
+
+  .btn {
+    padding: 0.8rem 1.8rem;
+    font-size: 0.95rem;
+  }
+
+  .labs-section {
+    padding: 4.5rem 0 3rem;
+  }
+
+  .labs-grid {
+    /* 超小画面では確実に1列 */
     grid-template-columns: 1fr;
+    gap: 0.9rem;
+  }
+
+  .footer {
+    padding: 2rem 1rem;
   }
 }

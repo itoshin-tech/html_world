@@ -24,6 +24,7 @@ export class WaveShader {
     this.resize();
     window.addEventListener('resize', () => this.resize());
 
+    // マウス操作
     this.canvas.addEventListener('mousemove', (e) => {
       const rect = this.canvas.getBoundingClientRect();
       const nx = (e.clientX - rect.left) / this.canvas.width;
@@ -42,6 +43,38 @@ export class WaveShader {
 
       this.mouse = [nx, ny];
     });
+
+    // タッチ操作（スマホ対応）
+    this.canvas.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      const rect = this.canvas.getBoundingClientRect();
+      const t = e.touches[0];
+      const nx = (t.clientX - rect.left) / this.canvas.width;
+      const ny = 1.0 - (t.clientY - rect.top) / this.canvas.height;
+      this.spawnRipple(nx, ny);
+      this.mouse = [nx, ny];
+      this.lastSpawnTime = Date.now();
+    }, { passive: false });
+
+    this.canvas.addEventListener('touchmove', (e) => {
+      e.preventDefault();
+      const rect = this.canvas.getBoundingClientRect();
+      const t = e.touches[0];
+      const nx = (t.clientX - rect.left) / this.canvas.width;
+      const ny = 1.0 - (t.clientY - rect.top) / this.canvas.height;
+
+      const dx = nx - this.mouse[0];
+      const dy = ny - this.mouse[1];
+      const dist = Math.sqrt(dx * dx + dy * dy);
+
+      const now = Date.now();
+      if (dist > 0.01 && now - this.lastSpawnTime > 50) {
+        this.spawnRipple(nx, ny);
+        this.lastSpawnTime = now;
+      }
+
+      this.mouse = [nx, ny];
+    }, { passive: false });
 
     const vs = `
       attribute vec2 position;

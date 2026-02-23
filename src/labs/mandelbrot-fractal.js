@@ -32,6 +32,10 @@ export class MandelbrotFractal {
     this.resize();
     window.addEventListener('resize', () => this.resize());
 
+    // ブラウザのピンチズームを無効化（CSSレベルで制御）
+    this.canvas.style.touchAction = 'none';
+
+    // マウスホイールズーム
     this.canvas.addEventListener('wheel', (e) => {
       e.preventDefault();
       const speed = 1.25;
@@ -55,6 +59,7 @@ export class MandelbrotFractal {
       this.targetZoom = newZoom;
     }, { passive: false });
 
+    // マウスドラッグ
     this.canvas.addEventListener('mousedown', (e) => {
       this.isDragging = true;
       this.lastMouse = { x: e.clientX, y: e.clientY };
@@ -81,6 +86,95 @@ export class MandelbrotFractal {
     window.addEventListener('mouseup', () => {
       this.isDragging = false;
       // mouseup時には慣性をそのまま残す（velX/velYはリセットしない）
+    });
+
+    // タッチ操作（スマホ対応）: 1本指ドラッグ + 2本指ピンチズーム
+    this.lastTouchDist = null; // ピンチ用: 前フレームの2点距離
+    this.lastTouchMid = null;  // ピンチ用: 前フレームの中点
+
+    this.canvas.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      this.isDragging = false;
+      this.velX = 0;
+      this.velY = 0;
+      if (e.touches.length === 1) {
+        // 1本指: ドラッグ開始
+        this.isDragging = true;
+        this.lastMouse = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+        this.lastTouchDist = null;
+        this.lastTouchMid = null;
+      } else if (e.touches.length === 2) {
+        // 2本指: ピンチ開始
+        this.isDragging = false;
+        const t0 = e.touches[0];
+        const t1 = e.touches[1];
+        this.lastTouchDist = Math.hypot(t1.clientX - t0.clientX, t1.clientY - t0.clientY);
+        this.lastTouchMid = {
+          x: (t0.clientX + t1.clientX) / 2,
+          y: (t0.clientY + t1.clientY) / 2,
+        };
+      }
+    }, { passive: false });
+
+    this.canvas.addEventListener('touchmove', (e) => {
+      e.preventDefault();
+      if (e.touches.length === 1 && this.isDragging) {
+        // 1本指ドラッグ
+        const touch = e.touches[0];
+        const dx = touch.clientX - this.lastMouse.x;
+        const dy = touch.clientY - this.lastMouse.y;
+        const scale = 4.0 / (this.canvas.height * this.zoom);
+        const deltaX = -dx * scale;
+        const deltaY = dy * scale;
+
+        this.offset.x += deltaX;
+        this.offset.y += deltaY;
+        this.targetOffset.x = this.offset.x;
+        this.targetOffset.y = this.offset.y;
+
+        this.velX = this.velX * 0.3 + deltaX * 0.7;
+        this.velY = this.velY * 0.3 + deltaY * 0.7;
+
+        this.lastMouse = { x: touch.clientX, y: touch.clientY };
+      } else if (e.touches.length === 2 && this.lastTouchDist !== null) {
+        // 2本指ピンチズーム
+        const t0 = e.touches[0];
+        const t1 = e.touches[1];
+        const newDist = Math.hypot(t1.clientX - t0.clientX, t1.clientY - t0.clientY);
+        const factor = newDist / this.lastTouchDist;
+
+        const midX = (t0.clientX + t1.clientX) / 2;
+        const midY = (t0.clientY + t1.clientY) / 2;
+        const rect = this.canvas.getBoundingClientRect();
+        const mx = midX - rect.left;
+        const my = midY - rect.top;
+        const W = this.canvas.width;
+        const H = this.canvas.height;
+
+        const dx_fractal = (mx - W / 2) / H * 4.0;
+        const dy_fractal = (H / 2 - my) / H * 4.0;
+
+        const newZoom = this.targetZoom * factor;
+        this.targetOffset.x += dx_fractal * (1 / this.targetZoom - 1 / newZoom);
+        this.targetOffset.y += dy_fractal * (1 / this.targetZoom - 1 / newZoom);
+        this.targetZoom = newZoom;
+
+        this.lastTouchDist = newDist;
+        this.lastTouchMid = { x: midX, y: midY };
+      }
+    }, { passive: false });
+
+    this.canvas.addEventListener('touchend', (e) => {
+      if (e.touches.length === 0) {
+        this.isDragging = false;
+        this.lastTouchDist = null;
+        this.lastTouchMid = null;
+      } else if (e.touches.length === 1) {
+        // 2本指→1本指に減った: ドラッグ再開
+        this.isDragging = true;
+        this.lastMouse = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+        this.lastTouchDist = null;
+      }
     });
 
     // ----- Shaders -----
